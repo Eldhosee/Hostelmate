@@ -1,8 +1,11 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
+import 'appbar.dart';
 
 class Attendence extends StatefulWidget {
   const Attendence({super.key});
@@ -77,23 +80,7 @@ class _AttendenceState extends State<Attendence> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE9E4ED),
-      appBar: AppBar(
-        leading: const Icon(
-          Icons.arrow_back,
-          color: Colors.black,
-        ),
-        title: Row(
-          children: [
-            Image.asset(
-              'assets/images/logo.gif',
-              height: 70,
-            ),
-            const Text('Hostel Mate'),
-          ],
-        ),
-        centerTitle: true,
-        backgroundColor: const Color(0xFF8B5FBF),
-      ),
+      appBar: const MyAppBar(),
       body: Column(
         children: [
           const Padding(
