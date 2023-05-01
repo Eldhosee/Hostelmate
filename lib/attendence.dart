@@ -96,7 +96,7 @@ class _AttendenceState extends State<Attendence> {
             height: 50,
             width: 250,
             decoration: BoxDecoration(
-                color: const Color.fromARGB(122, 139, 65, 170),
+                color: const Color(0xFF9A73B5),
                 borderRadius: const BorderRadius.all(Radius.circular(10)),
                 boxShadow: [
                   BoxShadow(

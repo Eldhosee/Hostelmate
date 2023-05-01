@@ -6,7 +6,6 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      
       title: Row(
         children: [
           Image.asset(
@@ -17,6 +16,20 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       centerTitle: true,
+      actions: [
+        IconButton(
+          onPressed: () {
+            // hello
+          },
+          icon: const Icon(Icons.chat),
+        ),
+        IconButton(
+          onPressed: () {
+            // hello
+          },
+          icon: const Icon(Icons.logout),
+        ),
+      ],
       backgroundColor: const Color(0xFF8B5FBF),
     );
   }
