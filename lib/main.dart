@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'bottomappbar.dart';
+import 'starting.dart';
 
 void main() => runApp(const MyApp());
 
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Hostel Mate',
       theme: ThemeData(),
-      home: const MyBottomBar(),
+      home: const Start(),
     );
   }
 }
