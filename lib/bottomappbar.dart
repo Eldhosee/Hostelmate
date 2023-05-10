@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:mini_project/attendence.dart';
 import 'payment.dart';
-import 'attendence.dart';
 import 'profile.dart';
+import 'more.dart';
 
 class MyBottomBar extends StatefulWidget {
   const MyBottomBar({Key? key}) : super(key: key);
@@ -17,6 +18,7 @@ class _MyBottomBarState extends State<MyBottomBar> {
     const MyProfile(),
     const Payment(),
     const Attendence(),
+    const More(),
   ];
 
   @override
@@ -34,7 +36,8 @@ class _MyBottomBarState extends State<MyBottomBar> {
             size: 30,
           ),
           Icon(Icons.payment, size: 30),
-          Icon(Icons.event_note, size: 30),
+          Icon(Icons.today, size: 30),
+          Icon(Icons.more_horiz, size: 30),
         ],
         onTap: (value) {
           setState(() {

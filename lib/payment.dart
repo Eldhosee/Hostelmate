@@ -147,7 +147,7 @@ class _PaymentState extends State<Payment> {
                       child: MaterialButton(
                         onPressed: () {
                           var options = {
-                            'key': //add ur rayzorpay key,
+                            'key': //enter ur key,
                             'amount':
                                 '$hostelfee', //in the smallest currency sub-unit.
                             'name': 'Hostel Fee',
@@ -226,7 +226,7 @@ class _PaymentState extends State<Payment> {
                           child: MaterialButton(
                             onPressed: () {
                               var options = {
-                                'key': //add ur rayzorpay key,
+                                'key': //enter ur key,
                                 'amount':
                                     '$messfee', //in the smallest currency sub-unit.
                                 'name': 'Mess Fee',

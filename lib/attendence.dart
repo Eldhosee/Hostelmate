@@ -1,11 +1,10 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:async';
 import 'appbar.dart';
+import 'atten_cal.dart';
 
 class Attendence extends StatefulWidget {
   const Attendence({super.key});
@@ -18,6 +17,7 @@ class _AttendenceState extends State<Attendence> {
   String result = "Hello World...!";
   bool message = false;
   late DateTime now;
+  bool marked = true;
 
   @override
   void initState() {
@@ -38,6 +38,15 @@ class _AttendenceState extends State<Attendence> {
         setState(() {
           result = cameraScanResult!;
         });
+        if (result!='') {
+          // ignore: use_build_context_synchronously
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => const Attencalender(myBoolValue: true)),
+          );
+        }
+        ;
       } else {
         // Permission has not been granted yet, request it
         PermissionStatus permissionStatus = await Permission.camera.request();
@@ -45,6 +54,29 @@ class _AttendenceState extends State<Attendence> {
           String? cameraScanResult = await scanner.scan();
           setState(() {
             result = cameraScanResult!;
+            if (result == 'Attendence') {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text('Permission denied'),
+                    content: const Text(
+                        'Please grant camera permission to scan QR code.'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('OK'),
+                      ),
+                    ],
+                    backgroundColor: const Color(0xFFE9E4ED),
+                    elevation: 8.0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                  );
+                },
+              );
+            }
           });
         } else {
           // ignore: use_build_context_synchronously
