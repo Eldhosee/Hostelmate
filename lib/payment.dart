@@ -203,7 +203,7 @@ class _PaymentState extends State<Payment> {
                               child: MaterialButton(
                                 onPressed: () {
                                   var options = {
-                                    'key': 'rzp_test_OYRyVKzcbL0U3e',
+                                    'key': '',
                                     'amount': hostelfee *
                                         100, //in the smallest currency sub-unit.
                                     'name': 'Hostel Fee',
@@ -287,7 +287,7 @@ class _PaymentState extends State<Payment> {
                                   child: MaterialButton(
                                     onPressed: () {
                                       var options = {
-                                        'key': 'rzp_test_OYRyVKzcbL0U3e',
+                                        'key': '',
                                         'amount': messfee *
                                             100, //in the smallest currency sub-unit.
                                         'name': 'Mess Fee',
