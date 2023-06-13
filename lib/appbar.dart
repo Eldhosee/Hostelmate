@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'message.dart';
+
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppBar({Key? key}) : super(key: key);
 
@@ -9,8 +11,8 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Row(
         children: [
           Image.asset(
-            'assets/images/logo.gif',
-            height: 70,
+            'assets/images/logo.png',
+            height: 90,
           ),
           const Text('Hostel Mate'),
         ],
@@ -19,7 +21,10 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         IconButton(
           onPressed: () {
-            // hello
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => MessageScreen()),
+            );
           },
           icon: const Icon(Icons.chat),
         ),

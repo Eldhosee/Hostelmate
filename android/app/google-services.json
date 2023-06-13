@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "895505721386",
+    "firebase_url": "https://hostel-mate-4b586-default-rtdb.firebaseio.com",
+    "project_id": "hostel-mate-4b586",
+    "storage_bucket": "hostel-mate-4b586.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:895505721386:android:a7d89d85741807ca4b3b53",
+        "android_client_info": {
+          "package_name": "com.example.mini_project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "895505721386-uatd3k24c75rmfr3c3t7omal1aqht5cv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.mini_project",
+            "certificate_hash": "9b3f481aebc2dbe0e402df7bb1ca37ec4d2e4813"
+          }
+        },
+        {
+          "client_id": "895505721386-q693r7a2oahoag125aqkkn4etht7iq3h.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBiZsHpgqPfBQaDW9TGCz3lQjjh_lWwFr4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "895505721386-q693r7a2oahoag125aqkkn4etht7iq3h.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

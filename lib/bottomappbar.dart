@@ -6,19 +6,23 @@ import 'profile.dart';
 import 'more.dart';
 
 class MyBottomBar extends StatefulWidget {
-  const MyBottomBar({Key? key}) : super(key: key);
+  final String objectName;
+  final bool secretary;
+  const MyBottomBar(
+      {Key? key, required this.objectName, required this.secretary})
+      : super(key: key);
 
   @override
-  _MyBottomBarState createState() => _MyBottomBarState();
+  State<MyBottomBar> createState() => _MyBottomBarState();
 }
 
 class _MyBottomBarState extends State<MyBottomBar> {
   int _currentIndex = 0;
-  final List<Widget> _screens = [
-    const MyProfile(),
-    const Payment(),
-    const Attendence(),
-    const More(),
+  late final List<Widget> _screens = [
+    MyProfile(object: widget.objectName),
+    Payment(object: widget.objectName),
+    Attendence(object: widget.objectName),
+    More(secretary: widget.secretary, object: widget.objectName),
   ];
 
   @override

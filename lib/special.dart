@@ -1,26 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:mini_project/history.dart';
-import 'package:mini_project/password.dart';
 import 'appbar.dart';
-import 'atten_cal.dart';
-import 'goinghome.dart';
-import 'mess_cal.dart';
-import 'special.dart';
+import 'sec_messcut.dart';
+import 'sec_paid.dart';
+import 'sec_notpaid.dart';
+import 'sec_messbill.dart';
 
-class More extends StatefulWidget {
-  final bool secretary;
+class Special extends StatefulWidget {
   final String object;
-  const More({Key? key, required this.secretary, required this.object})
-      : super(key: key);
+  const Special({Key? key, required this.object}) : super(key: key);
 
   @override
-  _MoreState createState() => _MoreState();
+  State<Special> createState() => _SpecialState();
 }
 
-class _MoreState extends State<More> {
+class _SpecialState extends State<Special> {
   @override
   Widget build(BuildContext context) {
-    print(widget.secretary);
     return Scaffold(
         backgroundColor: const Color(0xFFE9E4ED),
         appBar: const MyAppBar(),
@@ -28,9 +23,9 @@ class _MoreState extends State<More> {
           children: [
             const Center(
                 child: Padding(
-                    padding: EdgeInsets.only(top: 20, bottom: 40),
+                    padding: EdgeInsets.only(top: 20, bottom: 150),
                     child: Text(
-                      'More Options',
+                      'Paid',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 30,
@@ -45,8 +40,7 @@ class _MoreState extends State<More> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Attencalender(
-                                myBoolValue: false,
+                          builder: (context) => NotPaidList(
                                 object: widget.object,
                               )),
                     );
@@ -55,7 +49,7 @@ class _MoreState extends State<More> {
                       shape: const StadiumBorder(),
                       fixedSize: const Size(200, 50),
                       backgroundColor: const Color(0xFF8B5FBF)),
-                  label: const Text('Attendence Status'),
+                  label: const Text('Not paid'),
                 ),
               ),
             ),
@@ -67,7 +61,31 @@ class _MoreState extends State<More> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => Messcalender(
+                          builder: (context) =>
+                              Paid_List(object: widget.object)),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                      shape: const StadiumBorder(),
+                      fixedSize: const Size(200, 50),
+                      backgroundColor: const Color(0xFF8B5FBF)),
+                  label: const Text('Bill Paid'),
+                  icon: const Padding(
+                    padding: EdgeInsets.only(right: 20.0),
+                    child: Icon(Icons.money),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 40),
+              child: Center(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => Messcut_Count(
                                 object: widget.object,
                               )),
                     );
@@ -78,8 +96,8 @@ class _MoreState extends State<More> {
                       backgroundColor: const Color(0xFF8B5FBF)),
                   label: const Text('Mess Cut'),
                   icon: const Padding(
-                    padding: EdgeInsets.only(right: 20.0),
-                    child: Icon(Icons.no_food),
+                    padding: EdgeInsets.only(right: 10.0),
+                    child: Icon(Icons.food_bank),
                   ),
                 ),
               ),
@@ -92,8 +110,7 @@ class _MoreState extends State<More> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => GoingHome(
-                                matron: false,
+                          builder: (context) => MessBill(
                                 object: widget.object,
                               )),
                     );
@@ -102,90 +119,14 @@ class _MoreState extends State<More> {
                       shape: const StadiumBorder(),
                       fixedSize: const Size(200, 50),
                       backgroundColor: const Color(0xFF8B5FBF)),
-                  label: const Text('Going Home'),
+                  label: const Text('Mess Bill'),
                   icon: const Padding(
                     padding: EdgeInsets.only(right: 10.0),
-                    child: Icon(Icons.directions_walk),
+                    child: Icon(Icons.more_rounded),
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Center(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => Password(
-                                object: widget.object,
-                              )),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      fixedSize: const Size(200, 50),
-                      backgroundColor: const Color(0xFF8B5FBF)),
-                  label: const Text('Password Settings'),
-                  icon: const Padding(
-                    padding: EdgeInsets.only(right: 10.0),
-                    child: Icon(Icons.money),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 40),
-              child: Center(
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => History(
-                                object: widget.object,
-                              )),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                      shape: const StadiumBorder(),
-                      fixedSize: const Size(200, 50),
-                      backgroundColor: const Color(0xFF8B5FBF)),
-                  label: const Text('Payment History'),
-                  icon: const Padding(
-                    padding: EdgeInsets.only(right: 10.0),
-                    child: Icon(Icons.money),
-                  ),
-                ),
-              ),
-            ),
-            if (widget.secretary == true)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 0),
-                child: Center(
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Special(
-                                  object: widget.object,
-                                )),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                        shape: const StadiumBorder(),
-                        fixedSize: const Size(200, 50),
-                        backgroundColor: const Color(0xFF8B5FBF)),
-                    label: const Text('Special actions'),
-                    icon: const Padding(
-                      padding: EdgeInsets.only(right: 10.0),
-                      child: Icon(Icons.more_rounded),
-                    ),
-                  ),
-                ),
-              )
+            )
           ],
         ));
   }

@@ -27,7 +27,10 @@ class Start extends StatelessWidget {
           icon: const Icon(Icons.login),
           backgroundColor: const Color(0xFF8B5FBF),
           onPressed: () {
-            
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Login()),
+            );
           },
           label: const Text("Get started")),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

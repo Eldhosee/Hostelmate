@@ -1,28 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
-import 'package:mini_project/model/user_model.dart';
 import 'package:mini_project/reusable/showDialog.dart';
 import 'package:provider/provider.dart';
 import 'appbar.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-class Messcalender extends StatefulWidget {
+import 'model/user_model.dart';
+
+class GoingHome extends StatefulWidget {
   final String object;
-  const Messcalender({Key? key, required this.object}) : super(key: key);
+  final bool matron;
+  const GoingHome({Key? key, required this.object, required this.matron})
+      : super(key: key);
 
   @override
-  State<Messcalender> createState() => _MesscalenderState();
+  State<GoingHome> createState() => _GoingHomeState();
 }
 
-class _MesscalenderState extends State<Messcalender> {
+class _GoingHomeState extends State<GoingHome> {
   List<DateTime> selectedDates = [];
   List<DateTime> confirmedDates = [];
   DateTime today = DateTime.now();
   List<DateTime> markedDates = [];
-  bool isLoading = true;
+  bool updated = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -30,6 +34,7 @@ class _MesscalenderState extends State<Messcalender> {
 
     fetchMarkedDates().then((dates) {
       setState(() {
+        updated;
         markedDates = dates;
       });
     });
@@ -40,10 +45,10 @@ class _MesscalenderState extends State<Messcalender> {
       final newDate = DateTime(day.year, day.month, day.day);
 
       if (newDate.isBefore(DateTime.now())) {
-        return; // Do nothing if the date is before today
+        return;
       }
       if (confirmedDates.contains(newDate) || markedDates.contains(newDate)) {
-        return; // Do nothing if the date is already confirmed or marked
+        return;
       }
       if (selectedDates.contains(newDate)) {
         selectedDates.remove(newDate);
@@ -71,11 +76,11 @@ class _MesscalenderState extends State<Messcalender> {
       );
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final studentData = extractedData[widget.object];
-      if (studentData.containsKey('MessCut') &&
-          studentData['MessCut'] is List<dynamic>) {
-        final attendanceList = studentData['MessCut'] as List<dynamic>;
+      if (studentData.containsKey('GoingHome') &&
+          studentData['GoingHome'] is List<dynamic>) {
+        final goinghome = studentData['GoingHome'] as List<dynamic>;
         List<DateTime> dates = [];
-        for (var date in attendanceList) {
+        for (var date in goinghome) {
           final parts = date.split(',');
           if (parts.length == 3) {
             final year = int.parse(parts[0]);
@@ -91,6 +96,7 @@ class _MesscalenderState extends State<Messcalender> {
       }
       return [];
     } catch (error) {
+      isLoading = false;
       showAlertDialog(
           context, 'Something Went Wrong', 'Please check the network');
 
@@ -100,64 +106,59 @@ class _MesscalenderState extends State<Messcalender> {
 
   Future<void> update(List<DateTime> confirmedDates) async {
     try {
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-      final response = await http.get(
-        Uri.parse(
-            'https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}'),
-        headers: {
-          'accept': 'application/json',
-        },
-      );
+      final response = await http.get(Uri.parse(
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final studentData = extractedData[widget.object];
       if (studentData == null || studentData is! Map<String, dynamic>) {
         return;
       }
-      if (studentData.containsKey('MessCut') &&
-          studentData['MessCut'] is List<dynamic>) {
-        final messList = studentData['MessCut'] as List<dynamic>;
-        if (messList.contains(confirmedDates)) {
+      if (studentData.containsKey('GoingHome') &&
+          studentData['GoingHome'] is List<dynamic>) {
+        final goinghomelist = studentData['GoingHome'] as List<dynamic>;
+        if (goinghomelist.contains(confirmedDates)) {
           print('Attendance for today has already been marked');
           return;
         }
         final DateFormat formatter = DateFormat('yyyy,MM,dd');
         final List<String> stringDates =
             confirmedDates.map((date) => formatter.format(date)).toList();
-        messList.addAll(stringDates);
-        print(messList);
+        goinghomelist.addAll(stringDates);
       } else {
         final DateFormat formatter = DateFormat('yyyy,MM,dd');
-        studentData['MessCut'] =
+        studentData['GoingHome'] =
             confirmedDates.map((date) => formatter.format(date)).toList();
       }
-      
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
       final updateResponse = await http.put(
         Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}?auth=${authProvider.authToken}.json",
-        ),
-        headers: {
-          'accept': 'application/json',
-        },
+            "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}?auth=${authProvider.authToken}"),
         body: json.encode(studentData),
       );
       if (updateResponse.statusCode == 200) {
         confirmedDates.clear();
+        setState(() {
+          if (updated == true) {
+            updated = false;
+          } else {
+            updated = true;
+          }
+        });
       }
     } catch (error) {
-      showAlertDialog(
-          context, 'Something Went Wrong', 'Please check the network');
+      print(error);
     }
   }
 
-  Future<void> _confirmMessCut() async {
+  Future<void> _confirmGoingHome() async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Mess Cut'),
+          title: const Text('Confirm Going Home'),
           content: const Text(
-            'Are you sure you want to confirm the mess cut for the selected dates?',
+            'Are you sure you want to confirm the Going home for the selected dates?',
           ),
           actions: [
             TextButton(
@@ -180,7 +181,6 @@ class _MesscalenderState extends State<Messcalender> {
     if (confirmed == true) {
       setState(() {
         confirmedDates.addAll(selectedDates);
-
         selectedDates.clear();
       });
       await update(confirmedDates);
@@ -198,7 +198,7 @@ class _MesscalenderState extends State<Messcalender> {
             child: Padding(
               padding: EdgeInsets.only(top: 20, bottom: 50),
               child: Text(
-                'Mess Cut',
+                'Going Home',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 30,
@@ -211,10 +211,11 @@ class _MesscalenderState extends State<Messcalender> {
             future: fetchMarkedDates(),
             builder: (context, snapshot) {
               if (isLoading == true) {
-                return const SpinKitCubeGrid(
+                return const Center(
+                    child: SpinKitCubeGrid(
                   color: Color(0xFF8B5FBF),
                   size: 50.0,
-                );
+                ));
               }
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
@@ -229,7 +230,7 @@ class _MesscalenderState extends State<Messcalender> {
                   ),
                   availableGestures: AvailableGestures.all,
                   focusedDay: today,
-                  selectedDayPredicate: _isDaySelected,
+                  selectedDayPredicate: widget.matron ? null : _isDaySelected,
                   rowHeight: 60,
                   onDaySelected: _onDaySelected,
                   calendarBuilders: CalendarBuilders(
@@ -238,7 +239,6 @@ class _MesscalenderState extends State<Messcalender> {
                           .any((markedDate) => isSameDay(date, markedDate));
                       final isConfirmedDate = confirmedDates.any(
                           (confirmedDate) => isSameDay(date, confirmedDate));
-
                       if (isMarkedDate || isConfirmedDate) {
                         return Container(
                           width: 40, // Define the width of the container
@@ -255,28 +255,29 @@ class _MesscalenderState extends State<Messcalender> {
                           ),
                         );
                       }
-                      return null;
                     },
                   ),
                 );
               }
             },
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 40),
-            child: Center(
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.no_food),
-                onPressed: _confirmMessCut,
-                style: ElevatedButton.styleFrom(
-                  shape: const StadiumBorder(),
-                  fixedSize: const Size(200, 50),
-                  backgroundColor: const Color(0xFF8B5FBF),
+          if (widget.matron == false) ...[
+            Padding(
+              padding: const EdgeInsets.only(top: 40),
+              child: Center(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.directions_walk),
+                  onPressed: _confirmGoingHome,
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    fixedSize: const Size(200, 50),
+                    backgroundColor: const Color(0xFF8B5FBF),
+                  ),
+                  label: const Text('Confirm Going home'),
                 ),
-                label: const Text('Confirm Mess cut'),
               ),
             ),
-          ),
+          ]
         ],
       ),
     );
