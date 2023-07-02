@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +17,7 @@ class _MessageScreenState extends State<MessageScreen> {
   TextEditingController _textEditingController = TextEditingController();
   List<Message> messages = [];
   ScrollController _scrollController = ScrollController();
+  bool isLoading = true;
   @override
   void initState() {
     super.initState();
@@ -52,11 +54,13 @@ class _MessageScreenState extends State<MessageScreen> {
 
         newMessages.add(message);
       });
+
       newMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
       if (this.mounted) {
         setState(() {
           messages.clear();
           messages.addAll(newMessages);
+
           _scrollController.animateTo(
             _scrollController.position.maxScrollExtent,
             duration: Duration(milliseconds: 300),
@@ -64,6 +68,9 @@ class _MessageScreenState extends State<MessageScreen> {
           );
         });
       }
+    });
+    setState(() {
+      isLoading = false;
     });
   }
 
@@ -89,81 +96,87 @@ class _MessageScreenState extends State<MessageScreen> {
         backgroundColor: const Color(0xFF8B5FBF),
       ),
       backgroundColor: const Color(0xFFE9E4ED),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              controller: _scrollController,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final message = messages[index];
-                print(message);
+      body: isLoading
+          ? Center(
+              child: const SpinKitCubeGrid(
+                color: Color(0xFF8B5FBF),
+                size: 50.0,
+              ),
+            ) // Show loading indicator
+          : Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final message = messages[index];
 
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.all(16),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ' ${message.sender}',
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                      ),
-                      const SizedBox(height: 18),
-                      Text(
-                        ' ${message.content}',
-                        style: const TextStyle(fontSize: 19),
-                      ),
-                      const SizedBox(height: 28),
-                      Text(
-                        ' ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(message.timestamp))}',
-                        style: const TextStyle(fontSize: 11),
-                      ),
-                    ],
+                        padding: const EdgeInsets.all(16),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ' ${message.sender}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 18),
+                            Text(
+                              ' ${message.content}',
+                              style: const TextStyle(fontSize: 19),
+                            ),
+                            const SizedBox(height: 28),
+                            Text(
+                              ' ${DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.fromMillisecondsSinceEpoch(message.timestamp))}',
+                              style: const TextStyle(fontSize: 11),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+                authProvider.role == 'university'
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: _textEditingController,
+                                decoration:
+                                    const InputDecoration(hintText: 'Message'),
+                                onSubmitted: (value) {
+                                  if (value.isNotEmpty) {
+                                    _sendMessage(value, 'University');
+                                  }
+                                },
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.send),
+                              onPressed: () {
+                                final text = _textEditingController.text.trim();
+                                if (text.isNotEmpty) {
+                                  _sendMessage(text, 'University');
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                      )
+                    : SizedBox(),
+              ],
             ),
-          ),
-          authProvider.role == 'university'
-              ? Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _textEditingController,
-                          decoration:
-                              const InputDecoration(hintText: 'Message'),
-                          onSubmitted: (value) {
-                            if (value.isNotEmpty) {
-                              _sendMessage(value, 'University');
-                            }
-                          },
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.send),
-                        onPressed: () {
-                          final text = _textEditingController.text.trim();
-                          if (text.isNotEmpty) {
-                            _sendMessage(text, 'University');
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                )
-              : SizedBox(),
-        ],
-      ),
     );
   }
 }

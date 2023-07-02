@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mini_project/reusable/showDialog.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
@@ -12,7 +13,7 @@ import 'model/user_model.dart';
 class History extends StatefulWidget {
   /// Creates the home page.
   final String object;
-  History({Key? key, required this.object}) : super(key: key);
+  const History({Key? key, required this.object}) : super(key: key);
 
   @override
   State<History> createState() => _HistoryState();
@@ -55,11 +56,11 @@ class _HistoryState extends State<History> {
         },
       );
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      if (extractedData == null) {
+      if (extractedData.isEmpty) {
         return;
       }
       studentData = extractedData[widget.object];
-      if (studentData == null || studentData is! Map<String, dynamic>) {
+      if (studentData.isEmpty) {
         // Handle the case where the student data is missing or has an unexpected format
         return;
       }
@@ -72,8 +73,6 @@ class _HistoryState extends State<History> {
               ))
           .toList();
       employeeDataSource = EmployeeDataSource(historyEntries: historyEntries);
-      print(historyData);
-      print(historyEntries);
 
       setState(() {
         isLoading = false;
@@ -82,7 +81,12 @@ class _HistoryState extends State<History> {
       setState(() {
         isLoading = false;
       });
-      print(error);
+      isLoading = false;
+      return showAlertDialog(
+          context,
+          "Try again",
+          "Could'nt able to fetch details,chech your internet and log in again ",
+          "error");
     }
   }
 
@@ -190,7 +194,7 @@ class EmployeeDataSource extends DataGridSource {
             child: Text(e.value.toString()),
           );
         }
-        return SizedBox.shrink();
+        return const SizedBox.shrink();
       }).toList(),
     );
   }

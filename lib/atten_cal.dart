@@ -101,7 +101,6 @@ class _AttencalenderState extends State<Attencalender> {
           studentData['Attendence'] is List<dynamic>) {
         final attendanceList = studentData['Attendence'] as List<dynamic>;
         if (attendanceList.contains(formattedDate)) {
-          print('Attendance for today has already been marked');
           return;
         }
 
@@ -111,12 +110,12 @@ class _AttencalenderState extends State<Attencalender> {
           DateFormat('yyyy,MM,dd').format(DateTime.now())
         ];
       }
-      final updateResponse = await http.put(
+      await http.put(
           Uri.parse(
               "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}?auth=${authProvider.authToken}"),
           body: json.encode(studentData));
 
-      if (extractedData == null) {
+      if (extractedData.isEmpty) {
         return;
       }
     } catch (error) {

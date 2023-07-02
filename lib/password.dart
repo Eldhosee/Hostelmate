@@ -1,8 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mini_project/reusable/showDialog.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class Password extends StatefulWidget {
   final String object;
@@ -17,46 +16,15 @@ class _PasswordState extends State<Password> {
   String confirmpassword = '';
 
   bool isLoading = false;
-  Future<bool> Setpassword(String newpassword, String confirmpassword) async {
-    if (newpassword != confirmpassword ||
-        newpassword == '' ||
-        confirmpassword == '') {
+  Future<bool> updatePassword(String newPassword) async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    try {
+      await user?.updatePassword(newPassword);
+      return true;
+    } catch (e) {
       return false;
-    } else {
-      try {
-        final response = await http.get(Uri.parse(
-            "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
-        final extractedData =
-            json.decode(response.body) as Map<String, dynamic>;
-        if (extractedData == null) {
-          return false;
-        }
-        final studentData = extractedData[widget.object];
-        if (studentData == null || studentData is! Map<String, dynamic>) {
-          // Handle the case where the student data is missing or has an unexpected format
-          return false;
-        }
-        final currentPerson = extractedData[widget.object];
-        if (studentData.containsKey('password')) {
-          studentData['password'] = newpassword;
-        } else {
-          studentData['password'] = newpassword;
-        }
-        final updateResponse = await http.put(
-          Uri.parse(
-            "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json",
-          ),
-          body: json.encode(studentData),
-        );
-        if (updateResponse.statusCode == 200) {
-          return true;
-        }
-      } catch (error) {
-        print(error);
-        return false;
-      }
     }
-    return false;
   }
 
   @override
@@ -97,7 +65,7 @@ class _PasswordState extends State<Password> {
                           },
                           obscureText: true,
                           decoration: const InputDecoration(
-                              labelText: 'Confirm New Password',
+                              labelText: ' New Password',
                               prefixIcon: Icon(Icons.visibility,
                                   color: Color(0xFF8B5FBF)),
                               labelStyle: TextStyle(color: Colors.grey),
@@ -160,12 +128,16 @@ class _PasswordState extends State<Password> {
                 setState(() {
                   isLoading = true;
                 });
-                bool set = await Setpassword(newpassword, confirmpassword);
-                if (set == true) {
-                  showAlertDialog(context, 'Sucess',
-                      'new password has created successfully');
+                if (confirmpassword == newpassword) {
+                  bool set = await updatePassword(newpassword);
+
+                  if (set == true) {
+                    showAlertDialog(context, 'Sucess',
+                        'New password has created successfully', 'success');
+                  }
+                  Navigator.pop(context);
                 } else {
-                  showAlertDialog(context, 'Error!', 'Try Again');
+                  showAlertDialog(context, 'Error!', 'Try Again', 'error');
                 }
                 setState(() {
                   isLoading = false;

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mini_project/reusable/alert.dart';
 import 'package:mini_project/reusable/showDialog.dart';
 import 'package:provider/provider.dart';
 import 'appbar.dart';
@@ -26,7 +27,7 @@ class _GoingHomeState extends State<GoingHome> {
   DateTime today = DateTime.now();
   List<DateTime> markedDates = [];
   bool updated = false;
-  bool isLoading = false;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -45,6 +46,8 @@ class _GoingHomeState extends State<GoingHome> {
       final newDate = DateTime(day.year, day.month, day.day);
 
       if (newDate.isBefore(DateTime.now())) {
+        showAlertDialog(context, 'Invaild Date!',
+            'Past dates cannot be marked ,Please try again!!', 'info');
         return;
       }
       if (confirmedDates.contains(newDate) || markedDates.contains(newDate)) {
@@ -94,11 +97,13 @@ class _GoingHomeState extends State<GoingHome> {
         isLoading = false;
         return dates;
       }
+      isLoading = false;
       return [];
     } catch (error) {
       isLoading = false;
+     
       showAlertDialog(
-          context, 'Something Went Wrong', 'Please check the network');
+          context, 'Something Went Wrong', 'Please check the network', 'error');
 
       return [];
     }
@@ -106,8 +111,9 @@ class _GoingHomeState extends State<GoingHome> {
 
   Future<void> update(List<DateTime> confirmedDates) async {
     try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final response = await http.get(Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}"));
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final studentData = extractedData[widget.object];
       if (studentData == null || studentData is! Map<String, dynamic>) {
@@ -117,7 +123,7 @@ class _GoingHomeState extends State<GoingHome> {
           studentData['GoingHome'] is List<dynamic>) {
         final goinghomelist = studentData['GoingHome'] as List<dynamic>;
         if (goinghomelist.contains(confirmedDates)) {
-          print('Attendance for today has already been marked');
+         
           return;
         }
         final DateFormat formatter = DateFormat('yyyy,MM,dd');
@@ -129,11 +135,10 @@ class _GoingHomeState extends State<GoingHome> {
         studentData['GoingHome'] =
             confirmedDates.map((date) => formatter.format(date)).toList();
       }
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       final updateResponse = await http.put(
         Uri.parse(
-            "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}?auth=${authProvider.authToken}"),
+            "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json?auth=${authProvider.authToken}"),
         body: json.encode(studentData),
       );
       if (updateResponse.statusCode == 200) {
@@ -147,36 +152,20 @@ class _GoingHomeState extends State<GoingHome> {
         });
       }
     } catch (error) {
-      print(error);
+      isLoading = false;
+      return showAlertDialog(
+          context,
+          "Try again",
+          "Could'nt able to fetch details,chech your internet and log in again ",
+          "error");
     }
   }
 
   Future<void> _confirmGoingHome() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Going Home'),
-          content: const Text(
-            'Are you sure you want to confirm the Going home for the selected dates?',
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-            ),
-            TextButton(
-              child: const Text('Confirm'),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
-      },
-    );
+    final confirmed = await showConfirmationDialog(
+        context,
+        'Confirm Going Home',
+        'Are you sure you want to confirm the Going home for the selected dates?');
 
     if (confirmed == true) {
       setState(() {
@@ -255,6 +244,7 @@ class _GoingHomeState extends State<GoingHome> {
                           ),
                         );
                       }
+                      return null;
                     },
                   ),
                 );

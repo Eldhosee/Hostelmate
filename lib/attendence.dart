@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:mini_project/reusable/showDialog.dart';
 import 'package:provider/provider.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:flutter/services.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:quickalert/quickalert.dart';
 import 'dart:async';
 import 'appbar.dart';
 import 'atten_cal.dart';
@@ -52,33 +52,21 @@ class _AttendenceState extends State<Attendence> {
           result = cameraScanResult!;
         });
         if (result == qrcode) {
-          print('sucess2');
-          showDialog(
+          if (!mounted) return;
+          QuickAlert.show(
             context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Attendence marked '),
-                content: const Text('Attendence marked successfully.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => Attencalender(
-                                  myBoolValue: true,
-                                  object: widget.object,
-                                )),
-                      );
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-                backgroundColor: const Color(0xFFE9E4ED),
-                elevation: 8.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
+            type: QuickAlertType.success,
+            title: 'Attendence marked ',
+            text: 'Attendence marked successfully.',
+            confirmBtnColor: const Color(0xFF8B5FBF),
+            onConfirmBtnTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => Attencalender(
+                          myBoolValue: true,
+                          object: widget.object,
+                        )),
               );
             },
           );
@@ -91,33 +79,20 @@ class _AttendenceState extends State<Attendence> {
           setState(() {
             result = cameraScanResult!;
             if (result == qrcode) {
-              print('sucess');
-              showDialog(
+              QuickAlert.show(
                 context: context,
-                builder: (BuildContext context) {
-                  return AlertDialog(
-                    title: const Text('Attendence marked '),
-                    content: const Text('Attendence marked successfully.'),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => Attencalender(
-                                      myBoolValue: true,
-                                      object: widget.object,
-                                    )),
-                          );
-                        },
-                        child: const Text('OK'),
-                      ),
-                    ],
-                    backgroundColor: const Color(0xFFE9E4ED),
-                    elevation: 8.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
+                type: QuickAlertType.success,
+                title: 'Attendence marked ',
+                text: 'Attendence marked successfully.',
+                confirmBtnColor: const Color(0xFF8B5FBF),
+                onConfirmBtnTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Attencalender(
+                              myBoolValue: true,
+                              object: widget.object,
+                            )),
                   );
                 },
               );
@@ -125,26 +100,12 @@ class _AttendenceState extends State<Attendence> {
           });
         } else {
           // ignore: use_build_context_synchronously
-          showDialog(
+          QuickAlert.show(
             context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Permission denied'),
-                content: const Text(
-                    'Please grant camera permission to scan QR code.'),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
-                  ),
-                ],
-                backgroundColor: const Color(0xFFE9E4ED),
-                elevation: 8.0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-              );
-            },
+            type: QuickAlertType.error,
+            title: 'Permission denied ',
+            text: 'Please grant camera permission to scan QR code.',
+            confirmBtnColor: const Color(0xFF8B5FBF),
           );
         }
       }
@@ -152,7 +113,6 @@ class _AttendenceState extends State<Attendence> {
       setState(() {
         isLoading = false;
       });
-      print(e);
     }
   }
 
@@ -170,10 +130,9 @@ class _AttendenceState extends State<Attendence> {
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final studentData = extractedData[widget.object];
       if (studentData.containsKey('hostel')) {
-        final Hostel = studentData['hostel'];
         extractedData.forEach((key, value) {
           final data = value as Map<String, dynamic>;
-          if (data['role'] == 'matron') {
+          if (data['role'] == 'Matron') {
             setState(() {
               matronattendence = data['Attendence'];
               qrcode = data['qrcode'];

@@ -82,13 +82,13 @@ class _PaymentState extends State<Payment> {
       });
     }
     showAlertDialog(
-        context, 'Payment Success', '$temp bill paied successfully');
+        context, 'Payment Success', '$temp bill paied successfully', 'success');
     MaterialPageRoute(
         builder: (BuildContext context) => Payment(object: widget.object));
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    showAlertDialog(context, 'Payment Failer', 'Try Again');
+    showAlertDialog(context, 'Payment Failer', 'Try Again', 'error');
 
     MaterialPageRoute(
         builder: (BuildContext context) => Payment(
@@ -113,11 +113,11 @@ class _PaymentState extends State<Payment> {
         },
       );
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      if (extractedData == null) {
+      if (extractedData.isEmpty) {
         return;
       }
       studentData = extractedData[widget.object];
-      if (studentData == null || studentData is! Map<String, dynamic>) {
+      if (studentData.isEmpty || studentData is! Map<String, dynamic>) {
         // Handle the case where the student data is missing or has an unexpected format
         return;
       }
@@ -203,7 +203,7 @@ class _PaymentState extends State<Payment> {
                               child: MaterialButton(
                                 onPressed: () {
                                   var options = {
-                                    'key': '',
+                                    'key': 'rzp_test_OYRyVKzcbL0U3e',
                                     'amount': hostelfee *
                                         100, //in the smallest currency sub-unit.
                                     'name': 'Hostel Fee',
@@ -287,7 +287,7 @@ class _PaymentState extends State<Payment> {
                                   child: MaterialButton(
                                     onPressed: () {
                                       var options = {
-                                        'key': '',
+                                        'key': 'rzp_test_OYRyVKzcbL0U3e',
                                         'amount': messfee *
                                             100, //in the smallest currency sub-unit.
                                         'name': 'Mess Fee',

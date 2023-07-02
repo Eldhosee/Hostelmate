@@ -73,13 +73,15 @@ class _MessBillState extends State<MessBill> {
         }
       });
       if (success == true) {
-        showAlertDialog(context, 'success', 'fee updated successfully');
+        showAlertDialog(
+            context, 'success', 'fee updated successfully', 'success');
       } else {
-        showAlertDialog(context, 'Error', 'Something went wroung ,try again');
+        showAlertDialog(
+            context, 'Error', 'Something went wroung ,try again', 'error');
       }
     } catch (error) {
       showAlertDialog(
-          context, 'something went wroung', 'Check your connectivity');
+          context, 'something went wroung', 'Check your connectivity', 'error');
     }
   }
 
@@ -303,8 +305,8 @@ class _MessBillState extends State<MessBill> {
                         );
                       }
                     } else {
-                      showAlertDialog(
-                          context, 'Try Again', 'Something went wroung');
+                      showAlertDialog(context, 'Try Again',
+                          'Something went wroung', 'error');
                     }
                   },
                   style: ElevatedButton.styleFrom(

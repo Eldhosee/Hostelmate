@@ -1,9 +1,27 @@
 import 'package:flutter/material.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mini_project/reusable/showDialog.dart';
+import 'login.dart';
 import 'message.dart';
+
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppBar({Key? key}) : super(key: key);
+
+  Future<void> _signOut(BuildContext context) async {
+    try {
+      final FirebaseAuth _auth = FirebaseAuth.instance;
+      await _auth.signOut();
+      if (!context.mounted) return;
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const Login()),
+        (Route<dynamic> route) => false,
+      );
+    } catch (e) {
+      showAlertDialog(context, 'Logout Failed', 'Please try again.', 'error');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +48,7 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         IconButton(
           onPressed: () {
-            // hello
+            _signOut(context);
           },
           icon: const Icon(Icons.logout),
         ),

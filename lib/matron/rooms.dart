@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:mini_project/appbar.dart';
 import 'package:mini_project/matron/details.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_datagrid/datagrid.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import '../model/user_model.dart';
 
 class Rooms extends StatefulWidget {
   final String object;
@@ -52,13 +55,14 @@ class _RoomsState extends State<Rooms> {
 
   Future<void> readData() async {
     try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final response = await http.get(Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}"));
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       if (extractedData == null) {
         return;
       }
-
+      print(response.statusCode);
       setState(() {
         students = [];
       });
@@ -68,6 +72,7 @@ class _RoomsState extends State<Rooms> {
         final studentData = value as Map<String, dynamic>;
         if (studentData['hostel'] == presentuser['hostel'] &&
             studentData['email'] != presentuser['email']) {
+          print(studentData['name']);
           students.add(BillEntry(
             name: studentData['name'],
             email: studentData['email'],
@@ -86,6 +91,7 @@ class _RoomsState extends State<Rooms> {
         isLoading = false;
       });
     } catch (error) {
+      
       print(error);
     }
   }
@@ -162,7 +168,7 @@ class _RoomsState extends State<Rooms> {
                               label: Container(
                                 padding: const EdgeInsets.all(8.0),
                                 alignment: Alignment.center,
-                                child: const Text('Name2'),
+                                child: const Text('Name'),
                               ),
                             ),
                             GridColumn(

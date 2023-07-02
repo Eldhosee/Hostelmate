@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
 
-void showAlertDialog(BuildContext context, String title, String content) {
-  showDialog(
+void showAlertDialog(
+    BuildContext context, String title, String content, String type) {
+  final Map<String, QuickAlertType> typeMap = {
+    'success': QuickAlertType.success,
+    'info': QuickAlertType.info,
+    'warning': QuickAlertType.warning,
+    'error': QuickAlertType.error,
+  };
+  QuickAlert.show(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(title),
-        content: Text(content),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-        backgroundColor: const Color(0xFFE9E4ED),
-        elevation: 8.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10.0),
-        ),
-      );
-    },
+    type: typeMap[type] ?? QuickAlertType.info,
+    title: title,
+    text: content,
+    confirmBtnColor: const Color(0xFF8B5FBF),
   );
 }

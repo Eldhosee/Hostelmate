@@ -4,11 +4,12 @@ import 'package:mini_project/appbar.dart';
 import 'package:http/http.dart' as http;
 import 'package:mini_project/atten_cal.dart';
 import 'dart:convert';
-
-import 'package:mini_project/attendence.dart';
 import 'package:mini_project/goinghome.dart';
 import 'package:mini_project/reusable/alert.dart';
 import 'package:mini_project/reusable/showDialog.dart';
+import 'package:provider/provider.dart';
+
+import '../model/user_model.dart';
 
 class MatronMore extends StatefulWidget {
   final String email;
@@ -17,7 +18,7 @@ class MatronMore extends StatefulWidget {
       : super(key: key);
 
   @override
-  _MatronMoreState createState() => _MatronMoreState();
+  State<MatronMore> createState() => _MatronMoreState();
 }
 
 class _MatronMoreState extends State<MatronMore> {
@@ -31,8 +32,6 @@ class _MatronMoreState extends State<MatronMore> {
 
   Future<void> findperson(String email) async {
     try {
-      print("entered");
-      print(widget.matron);
       final response = await http.get(Uri.parse(
           "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
       final extractedData = json.decode(response.body);
@@ -42,7 +41,7 @@ class _MatronMoreState extends State<MatronMore> {
       }
 
       final students = List<Map<String, dynamic>>.from(extractedData.values);
-      late final filteredStudents;
+      late final List<Map<String, dynamic>> filteredStudents;
       if (email != '') {
         filteredStudents = students.where((student) {
           final foundemail = student["email"] as String?;
@@ -62,17 +61,22 @@ class _MatronMoreState extends State<MatronMore> {
           });
         }
       }
-      print(objectName);
     } catch (error) {
-      print(error);
+      showAlertDialog(
+          context,
+          "Try again",
+          "Could'nt able to fetch details,check your internet and log in again ",
+          "error");
     }
   }
 
   Future<void> secretay(bool selection) async {
     try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final response = await http.get(Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}"));
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      if (!mounted) return;
       final confirm = await showConfirmationDialog(
           context, 'Confirm!', 'Are you sure about this?');
       final matrondetails = extractedData[widget.matron];
@@ -92,19 +96,21 @@ class _MatronMoreState extends State<MatronMore> {
             }
           }
 
-          final response = await http.patch(
+          await http.patch(
             Uri.parse(
-                'https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/$key.json'),
+                'https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/$key.json?auth=${authProvider.authToken}'),
             body: jsonEncode(data),
           );
         });
         if (response.statusCode == 200) {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('User status updated successfully')),
+            const SnackBar(content: Text('User status updated successfully')),
           );
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update the user')),
+            const SnackBar(content: Text('Failed to update the user')),
           );
         }
       } else {
@@ -114,7 +120,11 @@ class _MatronMoreState extends State<MatronMore> {
         return;
       }
     } catch (e) {
-      print(e);
+      return showAlertDialog(
+          context,
+          "Try again",
+          "Could'nt able to fetch details,check your internet and log in again ",
+          "error");
     }
   }
 
@@ -165,8 +175,8 @@ class _MatronMoreState extends State<MatronMore> {
                                 )
                               ],
                             ),
-                            child: Column(
-                              children: const [
+                            child: const Column(
+                              children: [
                                 Padding(
                                   padding: EdgeInsets.only(top: 50.0),
                                   child: Icon(
@@ -213,8 +223,8 @@ class _MatronMoreState extends State<MatronMore> {
                             )
                           ],
                         ),
-                        child: Column(
-                          children: const [
+                        child: const Column(
+                          children: [
                             Padding(
                               padding: EdgeInsets.only(top: 50.0),
                               child: Icon(

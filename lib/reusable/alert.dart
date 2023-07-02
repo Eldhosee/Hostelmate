@@ -1,28 +1,28 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-Future<bool?> showConfirmationDialog(BuildContext context, String title, String message) async {
-  bool? confirmed = await showDialog<bool>(
+import 'package:flutter/material.dart';
+import 'package:quickalert/quickalert.dart';
+
+Future<bool> showConfirmationDialog(
+    BuildContext context, String title, String message) {
+  Completer<bool> completer = Completer<bool>();
+
+  QuickAlert.show(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            child: const Text('Cancel'),
-            onPressed: () {
-              Navigator.of(context).pop(false);
-            },
-          ),
-          TextButton(
-            child: const Text('Confirm'),
-            onPressed: () {
-              Navigator.of(context).pop(true);
-            },
-          ),
-        ],
-      );
+    type: QuickAlertType.confirm,
+    text: message,
+    confirmBtnText: 'Yes',
+    cancelBtnText: 'No',
+    confirmBtnColor: Colors.green,
+    onConfirmBtnTap: () {
+      Navigator.of(context).pop();
+      completer.complete(true);
+    },
+    onCancelBtnTap: () {
+      Navigator.of(context).pop();
+      completer.complete(false);
     },
   );
-  return confirmed;
+
+  return completer.future;
 }

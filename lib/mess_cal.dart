@@ -9,6 +9,8 @@ import 'package:table_calendar/table_calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'reusable/alert.dart';
+
 class Messcalender extends StatefulWidget {
   final String object;
   const Messcalender({Key? key, required this.object}) : super(key: key);
@@ -40,7 +42,9 @@ class _MesscalenderState extends State<Messcalender> {
       final newDate = DateTime(day.year, day.month, day.day);
 
       if (newDate.isBefore(DateTime.now())) {
-        return; // Do nothing if the date is before today
+        showAlertDialog(context, 'Invaild Date!',
+            'Past dates cannot be marked ,Please try again!!', 'info');
+        return;
       }
       if (confirmedDates.contains(newDate) || markedDates.contains(newDate)) {
         return; // Do nothing if the date is already confirmed or marked
@@ -86,13 +90,15 @@ class _MesscalenderState extends State<Messcalender> {
             dates.add(newDate);
           }
         }
+
         isLoading = false;
         return dates;
       }
+      isLoading = false;
       return [];
     } catch (error) {
       showAlertDialog(
-          context, 'Something Went Wrong', 'Please check the network');
+          context, 'Something Went Wrong', 'Please check the network', 'error');
 
       return [];
     }
@@ -131,10 +137,10 @@ class _MesscalenderState extends State<Messcalender> {
         studentData['MessCut'] =
             confirmedDates.map((date) => formatter.format(date)).toList();
       }
-      
+
       final updateResponse = await http.put(
         Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}?auth=${authProvider.authToken}.json",
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json?auth=${authProvider.authToken}",
         ),
         headers: {
           'accept': 'application/json',
@@ -146,36 +152,13 @@ class _MesscalenderState extends State<Messcalender> {
       }
     } catch (error) {
       showAlertDialog(
-          context, 'Something Went Wrong', 'Please check the network');
+          context, 'Something Went Wrong', 'Please check the network', 'error');
     }
   }
 
   Future<void> _confirmMessCut() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Mess Cut'),
-          content: const Text(
-            'Are you sure you want to confirm the mess cut for the selected dates?',
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-            ),
-            TextButton(
-              child: const Text('Confirm'),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
-      },
-    );
+    final confirmed = await showConfirmationDialog(context, 'Confirm Mess Cut',
+        'Are you sure you want to confirm the mess cut for the selected dates?');
 
     if (confirmed == true) {
       setState(() {

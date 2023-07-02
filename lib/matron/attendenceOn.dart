@@ -5,6 +5,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:mini_project/reusable/showDialog.dart';
+import 'package:provider/provider.dart';
+
+import '../model/user_model.dart';
 
 class MatronAttendence extends StatefulWidget {
   final String object;
@@ -16,6 +19,7 @@ class MatronAttendence extends StatefulWidget {
 
 class _MatronAttendenceState extends State<MatronAttendence> {
   bool attendence = false;
+  @override
   void initState() {
     super.initState();
     getdata();
@@ -23,19 +27,21 @@ class _MatronAttendenceState extends State<MatronAttendence> {
 
   Future<void> startattendence() async {
     try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final response = await http.get(Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}"));
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final studentData = extractedData[widget.object];
       studentData['Attendence'] = attendence;
-      final updateResponse = await http.put(
+      await http.put(
         Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json",
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json?auth=${authProvider.authToken}",
         ),
         body: json.encode(studentData),
       );
     } catch (error) {
-      showAlertDialog(context, "Try again", "check your connectivity!");
+      showAlertDialog(
+          context, "Try again", "check your connectivity!", 'error');
     }
   }
 
@@ -52,7 +58,8 @@ class _MatronAttendenceState extends State<MatronAttendence> {
       }
       return;
     } catch (error) {
-      showAlertDialog(context, "Try again", "check your connectivity!");
+      showAlertDialog(
+          context, "Try again", "check your connectivity!", 'error');
     }
   }
 

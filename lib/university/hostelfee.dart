@@ -77,7 +77,7 @@ class _HostelBillState extends State<HostelBill> {
     } catch (error) {
       print(error);
       showAlertDialog(
-          context, 'something went wroung', 'Check your connectivity');
+          context, 'something went wroung', 'Check your connectivity', 'error');
     }
   }
 
@@ -221,8 +221,8 @@ class _HostelBillState extends State<HostelBill> {
                               });
                             }
                           } else {
-                            showAlertDialog(
-                                context, 'Try Again', 'Something went wroung');
+                            showAlertDialog(context, 'Try Again',
+                                'Something went wroung', 'error');
                           }
                         },
                         style: ElevatedButton.styleFrom(

@@ -4,12 +4,15 @@ import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mini_project/appbar.dart';
 import 'package:mini_project/reusable/showDialog.dart';
 import 'package:printing/printing.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import '../model/user_model.dart';
 
 class QRCodeGenerator extends StatefulWidget {
   final String object;
@@ -64,16 +67,17 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
 
   Future<bool> setqrcode(String Code) async {
     try {
-      print(Code);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
       final response = await http.get(Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}"));
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final studentData = extractedData[widget.object];
       print(response.statusCode);
       studentData['qrcode'] = Code;
       final updateResponse = await http.put(
         Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json",
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json?auth=${authProvider.authToken}",
         ),
         body: json.encode(studentData),
       );
@@ -81,7 +85,8 @@ class _QRCodeGeneratorState extends State<QRCodeGenerator> {
       return true;
     } catch (error) {
       print(error);
-      showAlertDialog(context, "Try again", "check your connectivity!");
+      showAlertDialog(
+          context, "Try again", "check your connectivity!", 'error');
     }
     return false;
   }

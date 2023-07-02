@@ -1,9 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:mini_project/university/ubottombar.dart';
+import 'package:provider/provider.dart';
+import 'bottomappbar.dart';
 import 'login.dart';
+import 'matron/bottombar.dart';
+import 'model/user_model.dart';
 
-class Start extends StatelessWidget {
+class Start extends StatefulWidget {
   const Start({super.key});
 
+  @override
+  State<Start> createState() => _StartState();
+}
+
+class _StartState extends State<Start> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,10 +37,45 @@ class Start extends StatelessWidget {
           icon: const Icon(Icons.login),
           backgroundColor: const Color(0xFF8B5FBF),
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Login()),
-            );
+            final authProvider =
+                Provider.of<AuthProvider>(context, listen: false);
+            print(authProvider.name);
+            print(authProvider.role);
+            if (authProvider.name.isNotEmpty) {
+              print(authProvider.name);
+              String role = authProvider.role;
+
+              if (role == 'Inmate') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => MyBottomBar(
+                          objectName: authProvider.name,
+                          secretary: authProvider.secretary)),
+                );
+              } else if (role == 'Matron') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => BottomBar(
+                            objectName: authProvider.name,
+                          )),
+                );
+              } else if (role == 'university') {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => uBottomBar(
+                            objectName: authProvider.name,
+                          )),
+                );
+              }
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const Login()),
+              );
+            }
           },
           label: const Text("Get started")),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
