@@ -32,8 +32,9 @@ class _MatronMoreState extends State<MatronMore> {
 
   Future<void> findperson(String email) async {
     try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final response = await http.get(Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json"));
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}"));
       final extractedData = json.decode(response.body);
       if (extractedData == null) {
         // Handle the case where the extracted data is null
@@ -41,6 +42,7 @@ class _MatronMoreState extends State<MatronMore> {
       }
 
       final students = List<Map<String, dynamic>>.from(extractedData.values);
+      print(students);
       late final List<Map<String, dynamic>> filteredStudents;
       if (email != '') {
         filteredStudents = students.where((student) {
@@ -57,11 +59,13 @@ class _MatronMoreState extends State<MatronMore> {
         );
         if (objectName.isNotEmpty) {
           setState(() {
-            secretary = extractedData[objectName];
+            secretary = extractedData[objectName]['secretary'] ?? false;
+            ;
           });
         }
       }
     } catch (error) {
+      print(error);
       showAlertDialog(
           context,
           "Try again",

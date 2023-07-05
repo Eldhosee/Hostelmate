@@ -190,76 +190,77 @@ class _MesscalenderState extends State<Messcalender> {
               ),
             ),
           ),
-          FutureBuilder<List<DateTime>>(
-            future: fetchMarkedDates(),
-            builder: (context, snapshot) {
-              if (isLoading == true) {
-                return const SpinKitCubeGrid(
-                  color: Color(0xFF8B5FBF),
-                  size: 50.0,
-                );
-              }
-              if (snapshot.hasError) {
-                return Text('Error: ${snapshot.error}');
-              } else {
-                final markedDates = snapshot.data ?? [];
-                return TableCalendar(
-                  firstDay: DateTime.utc(2022, 10, 16),
-                  lastDay: DateTime.utc(2030, 3, 14),
-                  headerStyle: const HeaderStyle(
-                    formatButtonVisible: false,
-                    titleCentered: true,
-                  ),
-                  availableGestures: AvailableGestures.all,
-                  focusedDay: today,
-                  selectedDayPredicate: _isDaySelected,
-                  rowHeight: 60,
-                  onDaySelected: _onDaySelected,
-                  calendarBuilders: CalendarBuilders(
-                    defaultBuilder: (context, date, focusedDay) {
-                      final isMarkedDate = markedDates
-                          .any((markedDate) => isSameDay(date, markedDate));
-                      final isConfirmedDate = confirmedDates.any(
-                          (confirmedDate) => isSameDay(date, confirmedDate));
+          if (isLoading == true) ...[
+            const SpinKitCubeGrid(
+              color: Color(0xFF8B5FBF),
+              size: 50.0,
+            )
+          ] else ...[
+            FutureBuilder<List<DateTime>>(
+              future: fetchMarkedDates(),
+              builder: (context, snapshot) {
+                if (snapshot.hasError) {
+                  return Text('Error: ${snapshot.error}');
+                } else {
+                  final markedDates = snapshot.data ?? [];
+                  return TableCalendar(
+                    firstDay: DateTime.utc(2022, 10, 16),
+                    lastDay: DateTime.utc(2030, 3, 14),
+                    headerStyle: const HeaderStyle(
+                      formatButtonVisible: false,
+                      titleCentered: true,
+                    ),
+                    availableGestures: AvailableGestures.all,
+                    focusedDay: today,
+                    selectedDayPredicate: _isDaySelected,
+                    rowHeight: 60,
+                    onDaySelected: _onDaySelected,
+                    calendarBuilders: CalendarBuilders(
+                      defaultBuilder: (context, date, focusedDay) {
+                        final isMarkedDate = markedDates
+                            .any((markedDate) => isSameDay(date, markedDate));
+                        final isConfirmedDate = confirmedDates.any(
+                            (confirmedDate) => isSameDay(date, confirmedDate));
 
-                      if (isMarkedDate || isConfirmedDate) {
-                        return Container(
-                          width: 40, // Define the width of the container
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: Colors.red,
-                          ),
-                          child: Center(
-                            child: Text(
-                              '${date.day}',
-                              style: const TextStyle(color: Colors.white),
+                        if (isMarkedDate || isConfirmedDate) {
+                          return Container(
+                            width: 40, // Define the width of the container
+                            height: 40,
+                            decoration: const BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.red,
                             ),
-                          ),
-                        );
-                      }
-                      return null;
-                    },
+                            child: Center(
+                              child: Text(
+                                '${date.day}',
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          );
+                        }
+                        return null;
+                      },
+                    ),
+                  );
+                }
+              },
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 40),
+              child: Center(
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.no_food),
+                  onPressed: _confirmMessCut,
+                  style: ElevatedButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    fixedSize: const Size(200, 50),
+                    backgroundColor: const Color(0xFF8B5FBF),
                   ),
-                );
-              }
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 40),
-            child: Center(
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.no_food),
-                onPressed: _confirmMessCut,
-                style: ElevatedButton.styleFrom(
-                  shape: const StadiumBorder(),
-                  fixedSize: const Size(200, 50),
-                  backgroundColor: const Color(0xFF8B5FBF),
+                  label: const Text('Confirm Mess cut'),
                 ),
-                label: const Text('Confirm Mess cut'),
               ),
             ),
-          ),
+          ]
         ],
       ),
     );

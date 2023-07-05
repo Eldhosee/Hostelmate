@@ -42,7 +42,7 @@ class _Paid_ListState extends State<Paid_List> {
 
   Future<void> readData() async {
     try {
-        final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       final response = await http.get(
         Uri.parse(
@@ -52,7 +52,7 @@ class _Paid_ListState extends State<Paid_List> {
         },
       );
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      if (extractedData == null) {
+      if (extractedData.isEmpty) {
         return;
       }
 
@@ -70,68 +70,76 @@ class _Paid_ListState extends State<Paid_List> {
       });
 
       employeeDataSource = EmployeeDataSource(entries: paidListEntries);
-      isLoading = false;
-      setState(() {});
+
+      setState(() {
+        isLoading = false;
+      });
     } catch (error) {
-      isLoading = false;
-      print(error);
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE9E4ED),
-      appBar: const MyAppBar(),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 30, bottom: 50),
-            child: Center(
-              child: Text(
-                'Bill Paid List',
-                style: TextStyle(fontSize: 30),
-              ),
-            ),
-          ),
-          Expanded(
-            child: isLoading
-                ? const SpinKitCubeGrid(
-                    color: Color(0xFF8B5FBF),
-                    size: 80.0,
-                  )
-                : SfDataGridTheme(
-                    data: SfDataGridThemeData(
-                      headerColor: const Color.fromARGB(142, 140, 95, 191),
-                    ),
-                    child: SfDataGrid(
-                      source: employeeDataSource,
-                      columnWidthMode: ColumnWidthMode.fill,
-                      isScrollbarAlwaysShown: true,
-                      columns: <GridColumn>[
-                        GridColumn(
-                          columnName: 'Name',
-                          label: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            alignment: Alignment.center,
-                            child: const Text('Name'),
-                          ),
-                        ),
-                        GridColumn(
-                          columnName: 'Email',
-                          label: Container(
-                            padding: const EdgeInsets.all(8.0),
-                            alignment: Alignment.center,
-                            child: const Text('Email'),
-                          ),
-                        ),
-                      ],
+        backgroundColor: const Color(0xFFE9E4ED),
+        appBar: const MyAppBar(),
+        body: RefreshIndicator(
+            onRefresh: readData,
+            child: Stack(children: <Widget>[
+              ListView(),
+              Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 30, bottom: 50),
+                    child: Center(
+                      child: Text(
+                        'Bill Paid List',
+                        style: TextStyle(fontSize: 30),
+                      ),
                     ),
                   ),
-          ),
-        ],
-      ),
-    );
+                  Expanded(
+                    child: isLoading
+                        ? const SpinKitCubeGrid(
+                            color: Color(0xFF8B5FBF),
+                            size: 50.0,
+                          )
+                        : SfDataGridTheme(
+                            data: SfDataGridThemeData(
+                              headerColor:
+                                  const Color.fromARGB(142, 140, 95, 191),
+                            ),
+                            child: SfDataGrid(
+                              source: employeeDataSource,
+                              columnWidthMode: ColumnWidthMode.fill,
+                              isScrollbarAlwaysShown: true,
+                              columns: <GridColumn>[
+                                GridColumn(
+                                  columnName: 'Name',
+                                  label: Container(
+                                    padding: const EdgeInsets.all(8.0),
+                                    alignment: Alignment.center,
+                                    child: const Text('Name'),
+                                  ),
+                                ),
+                                GridColumn(
+                                  columnName: 'Email',
+                                  label: Container(
+                                    padding: const EdgeInsets.all(8.0),
+                                    alignment: Alignment.center,
+                                    child: const Text('Email'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                  ),
+                ],
+              ),
+            ])));
   }
 }
 

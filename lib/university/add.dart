@@ -111,7 +111,7 @@ class _UserFormState extends State<UserForm> {
   Future<void> sendWelcomeEmail(
       String recipientEmail, String userId, String password) async {
     // Configure the SMTP server (replace with your own SMTP settings)
-    final smtpServer = gmail('', '');
+    final smtpServer = gmail();
 
     // Create the message
     final message = Message()

@@ -101,7 +101,7 @@ class _GoingHomeState extends State<GoingHome> {
       return [];
     } catch (error) {
       isLoading = false;
-     
+
       showAlertDialog(
           context, 'Something Went Wrong', 'Please check the network', 'error');
 
@@ -123,7 +123,6 @@ class _GoingHomeState extends State<GoingHome> {
           studentData['GoingHome'] is List<dynamic>) {
         final goinghomelist = studentData['GoingHome'] as List<dynamic>;
         if (goinghomelist.contains(confirmedDates)) {
-         
           return;
         }
         final DateFormat formatter = DateFormat('yyyy,MM,dd');
@@ -181,31 +180,30 @@ class _GoingHomeState extends State<GoingHome> {
     return Scaffold(
       backgroundColor: const Color(0xFFE9E4ED),
       appBar: const MyAppBar(),
-      body: Column(
-        children: [
-          const Center(
-            child: Padding(
-              padding: EdgeInsets.only(top: 20, bottom: 50),
-              child: Text(
-                'Going Home',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Color.fromARGB(255, 145, 145, 145),
-                ),
+      body: Column(children: [
+        const Center(
+          child: Padding(
+            padding: EdgeInsets.only(top: 20, bottom: 50),
+            child: Text(
+              'Going Home',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 30,
+                color: Color.fromARGB(255, 145, 145, 145),
               ),
             ),
           ),
+        ),
+        if (isLoading == true) ...[
+          const Center(
+              child: SpinKitCubeGrid(
+            color: Color(0xFF8B5FBF),
+            size: 50.0,
+          ))
+        ] else ...[
           FutureBuilder<List<DateTime>>(
             future: fetchMarkedDates(),
             builder: (context, snapshot) {
-              if (isLoading == true) {
-                return const Center(
-                    child: SpinKitCubeGrid(
-                  color: Color(0xFF8B5FBF),
-                  size: 50.0,
-                ));
-              }
               if (snapshot.hasError) {
                 return Text('Error: ${snapshot.error}');
               } else {
@@ -269,7 +267,7 @@ class _GoingHomeState extends State<GoingHome> {
             ),
           ]
         ],
-      ),
+      ]),
     );
   }
 }

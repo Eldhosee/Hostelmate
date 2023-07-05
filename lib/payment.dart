@@ -43,14 +43,14 @@ class _PaymentState extends State<Payment> {
         "timestamp":
             DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now()).toString()
       };
-      print(newHistoryEntry);
+      
       studentData["history"] ??= [];
       studentData["history"].add(newHistoryEntry);
       studentData["Hostelfee"] = 0;
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final updateResponse = await http.put(
         Uri.parse(
-          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json",
+          "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json?auth=${authProvider.authToken}",
         ),
         body: json.encode(studentData),
       );
@@ -71,7 +71,7 @@ class _PaymentState extends State<Payment> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final updateResponse = await http.put(
         Uri.parse(
-            'https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}'),
+            'https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json?auth=${authProvider.authToken}'),
         headers: {
           'accept': 'application/json',
         },
@@ -154,91 +154,15 @@ class _PaymentState extends State<Payment> {
                                 fontSize: 30,
                                 color: Color.fromARGB(255, 145, 145, 145)),
                           ))),
-                  Container(
-                      width: 250,
-                      decoration: BoxDecoration(
-                          color: const Color.fromARGB(108, 166, 72, 206),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(10)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.4),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: const Offset(0, 3),
-                            ),
-                          ]),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 20, bottom: 20),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: const [
-                                  Padding(
-                                    padding: EdgeInsets.only(right: 10),
-                                    child: Icon(Icons.payment,
-                                        color: Colors.white),
-                                  ),
-                                  Text(
-                                    "Hostel Fee",
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 20),
-                                  ),
-                                ],
-                              )),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 25),
-                            child: Text(
-                              "Amount :$hostelfee",
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 16),
-                            ),
-                          ),
-                          Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 10, bottom: 20),
-                              child: MaterialButton(
-                                onPressed: () {
-                                  var options = {
-                                    'key': 'rzp_test_OYRyVKzcbL0U3e',
-                                    'amount': hostelfee *
-                                        100, //in the smallest currency sub-unit.
-                                    'name': 'Hostel Fee',
-
-                                    'description': 'Hostel Fee amount',
-                                    'timeout': 300, // in seconds
-                                    'prefill': {
-                                      'contact': '9123456789',
-                                      'email': 'collegehostel@example.com'
-                                    }
-                                  };
-                                  temp = 'hostel';
-                                  _razorpay.open(options);
-                                  // Add your onPressed action here
-                                },
-                                color: const Color(0xFF8B5FBF),
-                                textColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
-                                  side: const BorderSide(
-                                      color: Color(0xFF8B5FBF)),
-                                ),
-                                child: const Text(
-                                  'Pay',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ))
-                        ],
-                      )),
-                  Padding(
-                      padding: const EdgeInsets.only(top: 40),
-                      child: Container(
+                  if (hostelfee == 0 && messfee == 0) ...[
+                    Image.asset('assets/images/nopayment.png'),
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('No pending Bills'),
+                    )
+                  ] else ...[
+                    if (hostelfee != 0) ...[
+                      Container(
                           width: 250,
                           decoration: BoxDecoration(
                               color: const Color.fromARGB(108, 166, 72, 206),
@@ -255,19 +179,18 @@ class _PaymentState extends State<Payment> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Padding(
-                                  padding: const EdgeInsets.only(
-                                      top: 20, bottom: 20),
+                              const Padding(
+                                  padding: EdgeInsets.only(top: 20, bottom: 20),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
-                                    children: const [
+                                    children: [
                                       Padding(
                                         padding: EdgeInsets.only(right: 10),
                                         child: Icon(Icons.payment,
                                             color: Colors.white),
                                       ),
                                       Text(
-                                        "Mess Fee",
+                                        "Hostel Fee",
                                         style: TextStyle(
                                             color: Colors.white, fontSize: 20),
                                       ),
@@ -276,7 +199,7 @@ class _PaymentState extends State<Payment> {
                               Padding(
                                 padding: const EdgeInsets.only(bottom: 25),
                                 child: Text(
-                                  "Amount :$messfee",
+                                  "Amount :$hostelfee",
                                   style: const TextStyle(
                                       color: Colors.white, fontSize: 16),
                                 ),
@@ -288,19 +211,20 @@ class _PaymentState extends State<Payment> {
                                     onPressed: () {
                                       var options = {
                                         'key': 'rzp_test_OYRyVKzcbL0U3e',
-                                        'amount': messfee *
+                                        'amount': hostelfee *
                                             100, //in the smallest currency sub-unit.
-                                        'name': 'Mess Fee',
+                                        'name': 'Hostel Fee',
 
-                                        'description': 'Mess Fee amount',
+                                        'description': 'Hostel Fee amount',
                                         'timeout': 300, // in seconds
                                         'prefill': {
                                           'contact': '9123456789',
                                           'email': 'collegehostel@example.com'
                                         }
                                       };
-                                      temp = 'mess';
+                                      temp = 'hostel';
                                       _razorpay.open(options);
+                                      // Add your onPressed action here
                                     },
                                     color: const Color(0xFF8B5FBF),
                                     textColor: Colors.white,
@@ -318,7 +242,99 @@ class _PaymentState extends State<Payment> {
                                     ),
                                   ))
                             ],
-                          )))
+                          )),
+                    ],
+                    if (messfee != 0) ...[
+                      Padding(
+                          padding: const EdgeInsets.only(top: 40),
+                          child: Container(
+                              width: 250,
+                              decoration: BoxDecoration(
+                                  color:
+                                      const Color.fromARGB(108, 166, 72, 206),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10)),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.4),
+                                      spreadRadius: 5,
+                                      blurRadius: 7,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ]),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 20, bottom: 20),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Padding(
+                                            padding: EdgeInsets.only(right: 10),
+                                            child: Icon(Icons.payment,
+                                                color: Colors.white),
+                                          ),
+                                          Text(
+                                            "Mess Fee",
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 20),
+                                          ),
+                                        ],
+                                      )),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 25),
+                                    child: Text(
+                                      "Amount :$messfee",
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 16),
+                                    ),
+                                  ),
+                                  Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 10, bottom: 20),
+                                      child: MaterialButton(
+                                        onPressed: () {
+                                          var options = {
+                                            'key': 'rzp_test_OYRyVKzcbL0U3e',
+                                            'amount': messfee *
+                                                100, //in the smallest currency sub-unit.
+                                            'name': 'Mess Fee',
+
+                                            'description': 'Mess Fee amount',
+                                            'timeout': 300, // in seconds
+                                            'prefill': {
+                                              'contact': '9123456789',
+                                              'email':
+                                                  'collegehostel@example.com'
+                                            }
+                                          };
+                                          temp = 'mess';
+                                          _razorpay.open(options);
+                                        },
+                                        color: const Color(0xFF8B5FBF),
+                                        textColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18),
+                                          side: const BorderSide(
+                                              color: Color(0xFF8B5FBF)),
+                                        ),
+                                        child: const Text(
+                                          'Pay',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ))
+                                ],
+                              )))
+                    ],
+                  ],
                 ],
               ),
             ])));

@@ -6,6 +6,7 @@ import 'package:mini_project/model/user_model.dart';
 import 'package:mini_project/reusable/showDialog.dart';
 import 'package:mini_project/university/ubottombar.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'bottomappbar.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -40,6 +41,7 @@ class _LoginState extends State<Login> {
         email: userid.trimRight(),
         password: password,
       );
+      print(userCredential.user);
 
       if (userCredential.user != null) {
         final User? currentUser = _auth.currentUser;
@@ -57,24 +59,26 @@ class _LoginState extends State<Login> {
             final Map<dynamic, dynamic>? studentsData =
                 snapshotdata.snapshot.value as Map<dynamic, dynamic>?;
             final List<dynamic> studentsList = studentsData!.values.toList();
-
+            print('entered');
+            print(userid);
+            print(userid);
+            print(studentsData);
             final matchedStudents = studentsList.where((student) {
-              final email = student["email"] as String?;
+              final email = student["email"];
+              print(email);
               return email == userid;
             }).toList();
 
             if (matchedStudents.isNotEmpty) {
+              print(matchedStudents);
               final matchedStudent = matchedStudents.first;
-              try {
+              if (matchedStudent['secretary'] != null) {
                 secretary = matchedStudent['secretary'] as bool;
-              } catch (e) {}
-              
-
-              try {
-                role = matchedStudent['role'] as String;
-              } catch (error) {
               }
-             
+              if (matchedStudent['role'] != null) {
+                role = matchedStudent['role'] as String;
+              }
+
               objectName = studentsData.keys.firstWhere(
                 (key) => studentsData[key] == matchedStudent,
                 orElse: () => '',
@@ -82,6 +86,14 @@ class _LoginState extends State<Login> {
 
               if (objectName.isNotEmpty) {
                 print("Object Name: $objectName");
+                final SharedPreferences prefs =
+                    await SharedPreferences.getInstance();
+                await prefs.setString('authToken', authToken);
+                await prefs.setString('role', role);
+                await prefs.setString('email', userid);
+                await prefs.setString('objectName', objectName);
+                await prefs.setBool('secretary', secretary);
+                
                 authProvider.updateUid(authToken, role, objectName, secretary);
               } else {
                 return false;
@@ -93,6 +105,7 @@ class _LoginState extends State<Login> {
         }
       }
     } catch (error) {
+      print(error);
       return false;
     }
     return false;

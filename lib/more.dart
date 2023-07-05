@@ -4,6 +4,7 @@ import 'package:mini_project/messsdetails.dart';
 import 'package:mini_project/password.dart';
 import 'package:mini_project/reusable/showDialog.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'appbar.dart';
 import 'atten_cal.dart';
 import 'goinghome.dart';
@@ -31,6 +32,7 @@ class _MoreState extends State<More> {
   }
 
   bool messDetails = false;
+  bool secretary = false;
   Future<void> Fetch() async {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -51,11 +53,32 @@ class _MoreState extends State<More> {
             "error");
       }
       final studentData = extractedData[widget.object];
+      if (studentData['secretary']) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        // Update the value
+        prefs.setBool("secretary", true);
+        print(studentData);
+        setState(() {
+          secretary = true;
+        });
+      } else {
+        print("false");
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+
+        // Update the value
+        prefs.setBool("secretary", false);
+        setState(() {
+          secretary = false;
+        });
+      }
       extractedData.forEach((key, value) async {
         final data = value as Map<String, dynamic>;
-        if (data['hostel'] == studentData['hostel'] &&
+
+        if (data['secretary'] == true &&
+            data['hostel'] == studentData['hostel'] &&
             data['role'] == 'Inmate') {
-          print(data);
+          print("found");
           if (data.containsKey('getDetails')) {
             setState(() {
               messDetails = data['getDetails'];
@@ -335,16 +358,24 @@ class _MoreState extends State<More> {
                                     ],
                                   )),
                             )),
-                        if (widget.secretary == true) ...[
+                        if (secretary) ...[
                           GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => Special(
-                                            object: widget.object,
-                                          )),
-                                );
+                              onTap: () async {
+                                print(secretary);
+                                print("hoi");
+                                print(widget.secretary);
+                                await Fetch();
+                                if (!mounted) return;
+
+                                if (secretary == true) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => Special(
+                                              object: widget.object,
+                                            )),
+                                  );
+                                }
                               },
                               child: Center(
                                 child: Container(

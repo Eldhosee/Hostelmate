@@ -48,7 +48,8 @@ class _MessBillState extends State<MessBill> {
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
       final currentPerson = extractedData[widget.object];
       extractedData.forEach((studentId, studentData) async {
-        if (studentData['Hostel'] == currentPerson['Hostel']) {
+        if (studentData['Hostel'] == currentPerson['Hostel'] &&
+            studentData['role'] == 'Inmate') {
           if (studentData.containsKey('MessFee')) {
             studentData['MessFee'] += total;
           } else {
@@ -65,7 +66,7 @@ class _MessBillState extends State<MessBill> {
           },
           body: json.encode(studentData),
         );
-        success = true;
+
         if (updateResponse.statusCode == 200) {
           success = true;
         } else {
@@ -73,6 +74,7 @@ class _MessBillState extends State<MessBill> {
         }
       });
       if (success == true) {
+        if (!mounted) return;
         showAlertDialog(
             context, 'success', 'fee updated successfully', 'success');
       } else {
@@ -297,7 +299,7 @@ class _MessBillState extends State<MessBill> {
                         'Do you want to save and generate the mess bill?',
                       );
                       if (confirmed == true) {
-                        update();
+                        await update();
                         final pdfBytes = await _generatePdf(PdfPageFormat.a4,
                             establishmentAmount, effectiveDays, perDayAmount);
                         await Printing.layoutPdf(
@@ -305,8 +307,8 @@ class _MessBillState extends State<MessBill> {
                         );
                       }
                     } else {
-                      showAlertDialog(context, 'Try Again',
-                          'Something went wroung', 'error');
+                      showAlertDialog(
+                          context, 'Try Again', 'fill all the fields', 'info');
                     }
                   },
                   style: ElevatedButton.styleFrom(

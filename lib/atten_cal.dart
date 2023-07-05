@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mini_project/model/user_model.dart';
+import 'package:mini_project/reusable/showDialog.dart';
 import 'package:provider/provider.dart';
 import 'appbar.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -55,26 +56,9 @@ class _AttencalenderState extends State<Attencalender> {
       }
       return [];
     } catch (error) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Something Went Wroung'),
-            content: const Text('Please check the network'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-            backgroundColor: const Color(0xFFE9E4ED),
-            elevation: 8.0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-          );
-        },
-      );
+      showAlertDialog(context, 'Something Went Wroung',
+          'Please check the network', 'error');
+
       return [];
     }
   }
@@ -112,33 +96,15 @@ class _AttencalenderState extends State<Attencalender> {
       }
       await http.put(
           Uri.parse(
-              "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}?auth=${authProvider.authToken}"),
+              "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students/${widget.object}.json?auth=${authProvider.authToken}"),
           body: json.encode(studentData));
 
       if (extractedData.isEmpty) {
         return;
       }
     } catch (error) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Something Went Wroung'),
-            content: const Text('Please check the network'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('OK'),
-              ),
-            ],
-            backgroundColor: const Color(0xFFE9E4ED),
-            elevation: 8.0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
-            ),
-          );
-        },
-      );
+      showAlertDialog(context, 'Something Went Wroung',
+          'Please check the network', 'error');
     }
   }
 
@@ -148,7 +114,7 @@ class _AttencalenderState extends State<Attencalender> {
 
     if (widget.myBoolValue == true) {
       setState(() {
-        DateFormat('yyyy,MM,dd').format(DateTime.now());
+        markedDates.add(DateTime.now());
       });
       mark();
     }

@@ -59,7 +59,7 @@ class _RoomsState extends State<Rooms> {
       final response = await http.get(Uri.parse(
           "https://hostel-mate-4b586-default-rtdb.firebaseio.com/Students.json?auth=${authProvider.authToken}"));
       final extractedData = json.decode(response.body) as Map<String, dynamic>;
-      if (extractedData == null) {
+      if (extractedData.isEmpty) {
         return;
       }
       print(response.statusCode);
@@ -91,8 +91,10 @@ class _RoomsState extends State<Rooms> {
         isLoading = false;
       });
     } catch (error) {
-      
       print(error);
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -115,109 +117,114 @@ class _RoomsState extends State<Rooms> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFE9E4ED),
-      appBar: const MyAppBar(),
-      body: Column(
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 30, bottom: 50),
-            child: Center(
-              child: Text(
-                'Students list',
-                style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 145, 145, 145)),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 30.0),
-            child: TextField(
-              onChanged: (value) {
-                if (value == '') {
-                  readData();
-                }
-
-                filterData(value);
-              },
-              decoration: const InputDecoration(
-                labelText: 'Search by Name',
-                prefixIcon: Icon(Icons.search),
-              ),
-            ),
-          ),
-          Expanded(
-              child: isLoading
-                  ? const SpinKitCubeGrid(
-                      color: Color(0xFF8B5FBF),
-                      size: 80.0,
-                    )
-                  : SingleChildScrollView(
-                      child: SfDataGridTheme(
-                        data: SfDataGridThemeData(
-                          headerColor: const Color.fromARGB(142, 140, 95, 191),
-                        ),
-                        child: SfDataGrid(
-                          source: employeeDataSource,
-                          columnWidthMode: ColumnWidthMode.fill,
-                          isScrollbarAlwaysShown: true,
-                          columns: <GridColumn>[
-                            GridColumn(
-                              columnName: 'Name',
-                              label: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                alignment: Alignment.center,
-                                child: const Text('Name'),
-                              ),
-                            ),
-                            GridColumn(
-                              columnName: 'Email',
-                              label: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                alignment: Alignment.center,
-                                child: const Text('Email'),
-                              ),
-                            ),
-                            GridColumn(
-                              columnName: 'Phone',
-                              label: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                alignment: Alignment.center,
-                                child: const Text('Phone'),
-                              ),
-                            ),
-                            GridColumn(
-                              columnName: 'Room',
-                              label: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                alignment: Alignment.center,
-                                child: const Text('Room'),
-                              ),
-                            ),
-                            GridColumn(
-                              columnName: 'Department',
-                              label: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                alignment: Alignment.center,
-                                child: const Text('Department'),
-                              ),
-                            ),
-                            GridColumn(
-                              columnName: 'College',
-                              label: Container(
-                                padding: const EdgeInsets.all(8.0),
-                                alignment: Alignment.center,
-                                child: const Text('College'),
-                              ),
-                            ),
-                          ],
-                        ),
+        backgroundColor: const Color(0xFFE9E4ED),
+        appBar: const MyAppBar(),
+        body: RefreshIndicator(
+            onRefresh: readData,
+            child: Stack(children: <Widget>[
+              ListView(),
+              Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 30, bottom: 50),
+                    child: Center(
+                      child: Text(
+                        'Students list',
+                        style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 145, 145, 145)),
                       ),
-                    )),
-        ],
-      ),
-    );
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 30.0),
+                    child: TextField(
+                      onChanged: (value) {
+                        if (value == '') {
+                          readData();
+                        }
+
+                        filterData(value);
+                      },
+                      decoration: const InputDecoration(
+                        labelText: 'Search by Name',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                      child: isLoading
+                          ? const SpinKitCubeGrid(
+                              color: Color(0xFF8B5FBF),
+                              size: 50.0,
+                            )
+                          : SingleChildScrollView(
+                              child: SfDataGridTheme(
+                                data: SfDataGridThemeData(
+                                  headerColor:
+                                      const Color.fromARGB(142, 140, 95, 191),
+                                ),
+                                child: SfDataGrid(
+                                  source: employeeDataSource,
+                                  columnWidthMode: ColumnWidthMode.fill,
+                                  isScrollbarAlwaysShown: true,
+                                  columns: <GridColumn>[
+                                    GridColumn(
+                                      columnName: 'Name',
+                                      label: Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        alignment: Alignment.center,
+                                        child: const Text('Name'),
+                                      ),
+                                    ),
+                                    GridColumn(
+                                      columnName: 'Email',
+                                      label: Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        alignment: Alignment.center,
+                                        child: const Text('Email'),
+                                      ),
+                                    ),
+                                    GridColumn(
+                                      columnName: 'Phone',
+                                      label: Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        alignment: Alignment.center,
+                                        child: const Text('Phone'),
+                                      ),
+                                    ),
+                                    GridColumn(
+                                      columnName: 'Room',
+                                      label: Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        alignment: Alignment.center,
+                                        child: const Text('Room'),
+                                      ),
+                                    ),
+                                    GridColumn(
+                                      columnName: 'Department',
+                                      label: Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        alignment: Alignment.center,
+                                        child: const Text('Department'),
+                                      ),
+                                    ),
+                                    GridColumn(
+                                      columnName: 'College',
+                                      label: Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        alignment: Alignment.center,
+                                        child: const Text('College'),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )),
+                ],
+              ),
+            ])));
   }
 }
 
